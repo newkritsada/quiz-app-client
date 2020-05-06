@@ -5,6 +5,8 @@ import Layout from "../../src/components/Layout";
 import Axios from "axios";
 import { API } from "../../src/config/api";
 import LoaderComponent from "../../src/components/Loader";
+import Router from "next/router";
+
 import {
   Button,
   Form,
@@ -24,6 +26,8 @@ class Choice extends Component {
     super(props);
     this.state = {
       isLoading: false,
+      id: 1,
+      quizId: "",
       question: "",
       choice: [
         {
@@ -43,7 +47,6 @@ class Choice extends Component {
           status: 0,
         },
       ],
-      id: 1,
     };
   }
 
@@ -53,13 +56,18 @@ class Choice extends Component {
     });
   };
 
-  fetchData = () => {
+  fetchData = (path) => {
     this.Loader(true);
 
-    let { id, question, choice } = this.state;
-    let data = Axios.post(`${API.ARTICLE}/${id}`, { article: [{ question, choice }] })
+    let { id, quizId, question, choice } = this.state;
+
+    if (!question) Router.push({ pathname: `/` });
+
+    let data = Axios.post(`${API.ARTICLE}/${quizId}`, { article: [{ question, choice }] })
       .then((res) => {
-        console.log("\n== Res ==\n", res);
+        // console.log("\n== Res ==\n", res);
+        if (path == "REDIRECT") Router.push({ pathname: `/` });
+        else Router.push({ pathname: `/choice/${id + 1}`, query: { quizId: quizId } });
       })
       .catch((err) => {
         console.log(err);
@@ -75,6 +83,7 @@ class Choice extends Component {
 
     this.setState({
       id: parseInt(query.id),
+      quizId: query.quizId,
     });
     setTimeout(() => {
       this.Loader(false);
@@ -111,13 +120,13 @@ class Choice extends Component {
     });
   };
 
-  _onSubmit = () => {
-    this.fetchData();
+  _onSubmit = (path = null) => {
+    this.fetchData(path);
   };
 
   render() {
     let { id, isLoading, question, choice } = this.state;
-    return this.state.isLoading ? (
+    return isLoading ? (
       <LoaderComponent />
     ) : (
       <Layout>
@@ -167,16 +176,17 @@ class Choice extends Component {
             </Row>
 
             <div className="d-flex justify-content-center pl-4 pr-4">
-              <Link href="/">
-                <button type="button" className="btn btn-primary ml-2 mr-2 mt-2 mb-5 " onSubmit={this._onSubmit}>
-                  Complete!
-                </button>
-              </Link>
-              <Link href={{ pathname: `/choice/${id + 1}` }}>
-                <button type="button" className="btn btn-primary ml-2 mr-2 mt-2 mb-5 " onSubmit={this._onSubmit}>
-                  {"Next ->"}
-                </button>
-              </Link>
+              <button
+                type="button"
+                className="btn btn-primary ml-2 mr-2 mt-2 mb-5 "
+                onClick={() => this._onSubmit("REDIRECT")}
+              >
+                Complete!
+              </button>
+
+              <button type="button" className="btn btn-primary ml-2 mr-2 mt-2 mb-5 " onClick={this._onSubmit}>
+                {"Next ->"}
+              </button>
             </div>
           </Form>
         </div>

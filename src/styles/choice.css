@@ -1,0 +1,16 @@
+.choice-btn {
+  color: #000000;
+  background-color: #ffffff;
+  border-color: #007bff;
+  border-radius: 3em;
+  padding: 0.2em 2em;
+  font-size: large;
+}
+.choice-btn:hover {
+  color: #ffffff;
+  background-color: #4797ec;
+  border-color: #007bff;
+  border-radius: 3em;
+  padding: 0.2em 2em;
+  font-size: large;
+}

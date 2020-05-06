@@ -11,8 +11,16 @@ class Home extends Component {
     this.state = {
       isLoading: false,
       page: 1,
-      data: [],
-      body: { baba: "baba" },
+      perPage: 10,
+      data: [
+        {
+          id: 1,
+          quize_name: "demoquize",
+          creator: "Game",
+          status: 1,
+        },
+      ],
+      query: {},
     };
   }
 
@@ -23,35 +31,33 @@ class Home extends Component {
   };
 
   fetchData = (index = 1) => {
+    let { perPage } = this.state;
     let data = Axios.get(API.QUIZ, {
       params: {
         page: index,
-        items: 10,
+        perPage: perPage,
       },
     })
       .then((res) => {
-        console.log("\n== Res ==\n", res);
+        // console.log("\n== Res ==\n", res);
+
+        this.setState({
+          page: res.data.page,
+          perPage: res.data.perPage,
+          data: res.data.quize_list,
+        });
         this.Loader(false);
       })
       .catch((err) => {
         console.log(err);
-        setTimeout(() => {
-          this.Loader(false);
-        }, 1000);
+
+        this.Loader(false);
       });
   };
 
   componentDidMount() {
     this.Loader(true);
     this.fetchData();
-
-    let d = [];
-    for (let index = 0; index < 17; index++) {
-      d.push("This is Test" + index);
-    }
-    this.setState({
-      data: d,
-    });
   }
 
   changePaginate = (i) => {
@@ -64,7 +70,7 @@ class Home extends Component {
   };
 
   render() {
-    let { data, body, page } = this.state;
+    let { data, query, page } = this.state;
     return this.state.isLoading ? (
       <LoaderComponent />
     ) : (
@@ -80,20 +86,25 @@ class Home extends Component {
             </Link>
           </Col>
         </Row>
-        <Container className="list-bg">
+        <Container className="list-bg mb-5">
           <Row>
-            {data.map((value,index) => {
+            {data.map((value, index) => {
+              
               return (
                 <Col md={3} className="p-4" data-aos="flip-left">
-                  <Link href={{ pathname: `/quiz/${index}`, query: body }}>
+                  <Link href={{ pathname: `/quiz/${value.id}`, query }}>
                     <a className="quiz">
-                      <h4 className="text-center quiz">{value}</h4>
+                      <h4 className="text-center quiz" id={value.id}>
+                        {value.quize_name}
+                      </h4>
                     </a>
                   </Link>
                 </Col>
               );
             })}
           </Row>
+        </Container>
+        <Container>
           <div className="d-flex justify-content-center">
             <Pagination size="lg" aria-label="Page navigation example">
               <PaginationItem>

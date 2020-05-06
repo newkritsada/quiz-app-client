@@ -6,12 +6,14 @@ import Axios from "axios";
 import { API } from "../src/config/api";
 import LoaderComponent from "../src/components/Loader";
 import { Button, Form, FormGroup, Label, Input, FormText } from "reactstrap";
+import Router from "next/router";
 
 class CreateQuiz extends Component {
   constructor(props) {
     super(props);
     this.state = {
       isLoading: false,
+      id: 1,
       data: {
         quizName: "",
         createName: "",
@@ -33,13 +35,17 @@ class CreateQuiz extends Component {
 
     Axios.post(API.QUIZ, data)
       .then((res) => {
-        console.log("\n== Res ==\n", res);
+        // console.log("\n== Res ==\n", res);
+        this.setState({
+          id: res.data.result.id,
+        });
+
+        Router.push({ pathname: `/choice/1`, query: { quizId: res.data.result.id } });
+        // return <Link href={{ pathname: `/choice/1`, query: { quizId: res.data.result.id, } }}  />;
+        // this.Loader(false);
       })
       .catch((err) => {
         console.log(err);
-        setTimeout(() => {
-          this.Loader(false);
-        }, 1000);
       });
   };
 
@@ -48,17 +54,10 @@ class CreateQuiz extends Component {
       isLoading: status,
     });
   };
-  componentDidMount() {
-    this.Loader(true);
 
-    setTimeout(() => {
-      this.Loader(false);
-    }, 1000);
-  }
 
   componentWillReceiveProps(nextProps) {
     let { query } = nextProps.router;
-    
   }
 
   _onChange = (e) => {
@@ -71,17 +70,18 @@ class CreateQuiz extends Component {
   };
 
   _onSubmit = () => {
+    console.log("Click! Click!! Click!!!");
     this.fetchData();
   };
 
   render() {
-    let { data, isLoading } = this.state;
+    let { id, data, isLoading } = this.state;
     return this.state.isLoading ? (
       <LoaderComponent />
     ) : (
       <Layout>
         <div className="d-flex justify-content-center">
-          <Form className="list-bg p-4 mt-5 quiz-form">
+          <Form className="list-bg p-4 mt-5 quiz-form" onSubmit={this._onSubmit}>
             <FormGroup>
               <Label for="quizName">
                 <h4>Quiz Name</h4>
@@ -122,7 +122,7 @@ class CreateQuiz extends Component {
               />
             </FormGroup>
             <FormGroup tag="fieldset">
-              <legend>Radio Buttons</legend>
+              <legend>Privacy</legend>
               <FormGroup check>
                 <Input
                   type="radio"
@@ -146,11 +146,11 @@ class CreateQuiz extends Component {
             </FormGroup>
 
             <div className="d-flex flex-row-reverse">
-              <Link href="/choice/1">
-                <button type="button" className="btn btn-primary ml-2 mr-2 mb-5 create-next" onSubmit={this._onSubmit}>
-                  Next ->
-                </button>
-              </Link>
+              {/* <Link href={{ pathname: `/choice/1`, query: { quizId: id } }} onClick={this._onSubmit}> */}
+              <button type="button" className="btn btn-primary ml-2 mr-2 mb-5 create-next" onClick={this._onSubmit}>
+                Next ->
+              </button>
+              {/* </Link> */}
               <Link href="/">
                 <button type="button" className="btn btn-secondary ml-2 mr-2 mb-5 create-cancel">
                   Cancel

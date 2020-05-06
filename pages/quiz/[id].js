@@ -5,19 +5,48 @@ import Layout from "../../src/components/Layout";
 import Axios from "axios";
 import { API } from "../../src/config/api";
 import LoaderComponent from "../../src/components/Loader";
-import { Row, Col, Container, Table, Pagination, PaginationItem, PaginationLink } from "reactstrap";
+import Router from "next/router";
+
+import {
+  Alert,
+  Row,
+  Col,
+  Container,
+  Table,
+  Pagination,
+  PaginationItem,
+  PaginationLink,
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Form,
+  FormGroup,
+  Label,
+  Input,
+} from "reactstrap";
+import QuizModal from "../../src/components/QuizModal";
 
 class Quiz extends Component {
   constructor(props) {
     super(props);
     this.state = {
       isLoading: false,
+      modal: false,
+      doItModal: false,
+      visible: false,
+      id: 1,
       page: 1,
+      perPage: 10,
+      quizName: "quiz Name",
+      creatorName: "creator Name",
+      code: "1234",
+      name: "baba",
       data: [
-        { name: "Mavis", point: 0 },
-        { name: "Sleeper", point: 10 },
-        { name: "Keeper", point: 9 },
+        // { id: 1, name: "", point: 0 }
       ],
+      status: "You don't have permission",
     };
   }
 
@@ -27,70 +56,206 @@ class Quiz extends Component {
     });
   };
 
-  fetchData = (index = 1) => {
-    let data = Axios.get(API.QUIZ, {
+  fetchData = (id, page = 1, perPage = 10) => {
+    this.Loader(true);
+
+    Axios.get(`${API.LEADER_BOARD}/${id}`, {
       params: {
-        page: index,
-        items: 10,
+        page: page,
+        perPage: perPage,
       },
     })
       .then((res) => {
-        console.log("\n== Res ==\n", res);
+        // console.log("\n== Res ==\n", res);
+        this.setState({
+          data: res.data.leaderboard,
+        });
         this.Loader(false);
       })
       .catch((err) => {
         console.log(err);
-        setTimeout(() => {
-          this.Loader(false);
-        }, 1000);
+        this.Loader(false);
+      });
+
+    Axios.get(`${API.QUIZ}/${id}`)
+      .then((res) => {
+        // console.log("\n== Res ==\n", res);
+        this.setState({
+          quizName: res.data.quize[0].quize_name,
+          creatorName: res.data.quize[0].creator,
+        });
+        this.Loader(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        this.Loader(false);
+      });
+  };
+
+  doIt = () => {
+    let { id, name } = this.state;
+    let body = {
+      player: name,
+      quiz_id: id,
+    };
+    Axios.post(`${API.CREATE_PLAYER}`, body)
+      .then((res) => {
+        // console.log("\n== Res ==\n", res);
+
+        Router.push({
+          pathname: `/quiz/${id}/1`,
+          query: { playerName: res.data.result.name, playerId: res.data.result.id },
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        this.setState({
+          visible: true,
+        });
+      });
+  };
+
+  delete = async () => {
+    let { id, code } = this.state;
+    this.setState({
+      modal: !this.state.modal,
+    });
+    let data = await Axios.delete(`${API.QUIZ}/${id}/${code}`)
+      .then((res) => {
+        Router.push({ pathname: `/` });
+
+        this.Loader(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        this.setState({
+          visible: true,
+        });
       });
   };
 
   componentDidMount() {
-    this.Loader(true);
-    this.fetchData();
+    
+    let { query } = Router.router;
+    // console.log("\n== query ==\n", Router.router.query);
+    this.setState({
+      id: parseInt(query.id),
+    });
+    this.fetchData(query.id);
+  }
 
-    // let d = [];
-    // for (let index = 0; index < 17; index++) {
-    //   d.push("This is Test" + index);
-    // }
-    // this.setState({
-    //   data: d,
-    // });
+  componentWillReceiveProps(nextProps) {
+    let { query } = nextProps.router;
+    // console.log("\n== query ==\n", query);
+    this.setState({
+      id: parseInt(query.id),
+    });
+    this.fetchData(query.id);
   }
 
   changePaginate = (i) => {
     if (i <= 1) i = 1;
     if (i >= 5) i = 5;
-    this.fetchData(i);
+    this.fetchData(id, i);
     this.setState({
       page: i,
     });
   };
 
-  render() {
-    let {page, data, isLoading } = this.state;
+  _onChange = (e) => {
+    this.setState({
+      [e.target.name]: e.target.value,
+    });
+  };
 
-    return this.state.isLoading ? (
+  toggle = () => {
+    this.setState({
+      modal: !this.state.modal,
+    });
+  };
+
+  doItToggle = () => {
+    this.setState({
+      doItModal: !this.state.doItModal,
+    });
+  };
+
+  onDismiss = () => {
+    this.setState({
+      visible: false,
+    });
+  };
+
+  render() {
+    let {
+      id,
+      page,
+      data,
+      isLoading,
+      modal,
+      doItModal,
+      quizName,
+      creatorName,
+      code,
+      name,
+      visible,
+      status,
+    } = this.state;
+
+    return isLoading ? (
       <LoaderComponent />
     ) : (
       <Layout>
-        <h1 className="d-flex justify-content-center">ชื่อ Quiz: สร้างโดย</h1>
+        <Alert color="danger" isOpen={visible} toggle={this.onDismiss}>
+          {status}
+        </Alert>
+        {/* Modal Do it */}
+        <QuizModal
+          isOpen={doItModal}
+          toggle={this.doItToggle}
+          header={quizName}
+          labelName="Player Name"
+          name="name"
+          id="name"
+          placeholder="Player Name"
+          value={name}
+          onChange={this._onChange}
+          color="primary"
+          buttonName="Do it!"
+          onClick={this.doIt}
+        />
+        {/* Modal Delete */}
+
+        <QuizModal
+          isOpen={modal}
+          toggle={this.toggle}
+          header={quizName}
+          labelName="Code"
+          name="code"
+          id="code"
+          placeholder="code to delete"
+          value={code}
+          onChange={this._onChange}
+          color="danger"
+          buttonName="Delete"
+          onClick={this.delete}
+        />
+
+        <h1 className="d-flex justify-content-center">
+          ชื่อ {quizName}: สร้างโดย {creatorName}
+        </h1>
         <Row>
           <Col md={12} className="d-flex justify-content-between pt-5 pb-3">
-            <Link href={{ pathname: `/createQuiz` }}>
-              <button type="button" className="btn btn-primary create">
-                Do it!
-              </button>
-            </Link>
-            <Link href={{ pathname: `/createQuiz` }}>
-              <button type="button" className="btn btn-primary create">
-                Delete
-              </button>
-            </Link>
+            <button type="button" className="btn btn-primary create" onClick={this.doItToggle}>
+              Do it!
+            </button>
+
+            <button type="button" className="btn btn-danger create" onClick={this.toggle}>
+              Delete
+            </button>
           </Col>
         </Row>
-        <Container className="list-bg">
+        <Container className="list-bg mb-5">
           <Table borderless>
             <thead>
               <tr>
@@ -113,6 +278,8 @@ class Quiz extends Component {
               })}
             </tbody>
           </Table>
+        </Container>
+        <Container className="text-center">
           <div className="d-flex justify-content-center">
             <Pagination size="lg" aria-label="Page navigation example">
               <PaginationItem>
@@ -144,6 +311,11 @@ class Quiz extends Component {
               </PaginationItem>
             </Pagination>
           </div>
+          <Link href="/">
+            <button type="button" className="btn btn-secondary m-5 create-cancel">
+              Back
+            </button>
+          </Link>
         </Container>
       </Layout>
     );
