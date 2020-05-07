@@ -41,12 +41,12 @@ class Quiz extends Component {
       perPage: 10,
       quizName: "quiz Name",
       creatorName: "creator Name",
-      code: "1234",
-      name: "baba",
+      code: "",
+      name: "",
       data: [
         // { id: 1, name: "", point: 0 }
       ],
-      status: "You don't have permission",
+      status: "Error, Something went wrong",
     };
   }
 
