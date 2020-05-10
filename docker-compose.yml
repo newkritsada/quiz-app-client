@@ -1,0 +1,17 @@
+version: "3.2"
+services:
+
+    quiz-app-client:
+      build: .
+      container_name: quiz-app-client
+      ports:
+        - "3000:3000"
+      volumes:
+        - ./:/app
+        - /app/node_modules
+        - /app/.next
+      networks:
+        - nat
+
+networks:
+  nat:
