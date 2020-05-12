@@ -6,6 +6,14 @@
   background-color: #fea667;
 }
 
+.head-color{
+  color: #12aa70;
+}
+
+.head-list-color{
+  color: #23bbbb;
+}
+
 a.quiz:link,
 a.quiz:visited {
   color: #25bac1;

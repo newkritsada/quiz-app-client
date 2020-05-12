@@ -1,4 +1,4 @@
-const domain = "http://quiz-app-api.eastus.azurecontainer.io:3000";
+const domain = "http://quiz-app-api.southeastasia.azurecontainer.io";
 const v1 = "/api/v1";
 
 export const API = {

@@ -1,0 +1,32 @@
+apiVersion: 2018-10-01
+location: eastus
+name: myContainerGroup
+properties:
+  containers:
+  - name: aci-tutorial-app
+    properties:
+      image: osdemo20989.azurecr.io/os-quiz-project_nextjs:latest
+      resources:
+        requests:
+          cpu: 1
+          memoryInGb: 1.5
+      ports:
+      - port: 80
+      - port: 3000
+  - name: aci-tutorial-sidecar
+    properties:
+      image: osdemo20989.azurecr.io/os-quiz-project_nginx:latest
+      resources:
+        requests:
+          cpu: 1
+          memoryInGb: 1.5
+  osType: Linux
+  ipAddress:
+    type: Public
+    ports:
+    - protocol: tcp
+      port: '80'
+    - protocol: tcp
+      port: '8080'
+tags: null
+type: Microsoft.ContainerInstance/containerGroups

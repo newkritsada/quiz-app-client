@@ -15,8 +15,8 @@ class Home extends Component {
       data: [
         {
           id: 1,
-          quize_name: "demoquize",
-          creator: "Game",
+          quize_name: "",
+          creator: "",
           status: 1,
         },
       ],
@@ -75,10 +75,10 @@ class Home extends Component {
       <LoaderComponent />
     ) : (
       <Layout>
-        <h1 className="d-flex justify-content-center">Quiz (ชื่อเว็บ)</h1>
+        <h1 className="d-flex justify-content-center head-color">{"~<< Quiz, just do it!>> ~"}</h1>
         <Row>
           <Col md={12} className="d-flex justify-content-between pt-5 pb-3">
-            <h2>Quiz List</h2>
+            <h2 className="head-list-color">Quiz List</h2>
             <Link href={{ pathname: `/createQuiz` }}>
               <button type="button" className="btn btn-primary create">
                 Create
@@ -89,7 +89,6 @@ class Home extends Component {
         <Container className="list-bg mb-5">
           <Row>
             {data.map((value, index) => {
-              
               return (
                 <Col md={3} className="p-4" data-aos="flip-left">
                   <Link href={{ pathname: `/quiz/${value.id}`, query }}>

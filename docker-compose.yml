@@ -1,17 +1,8 @@
-version: "3.2"
+version: "3"
 services:
-
-    quiz-app-client:
-      build: .
-      container_name: quiz-app-client
-      ports:
-        - "3000:3000"
-      volumes:
-        - ./:/app
-        - /app/node_modules
-        - /app/.next
-      networks:
-        - nat
-
-networks:
-  nat:
+  nextjs:
+    build: ./
+  nginx:
+    build: ./nginx
+    ports: 
+      - 80:80
