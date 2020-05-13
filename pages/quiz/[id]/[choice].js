@@ -115,7 +115,7 @@ class Doit extends Component {
   }
 
   sendAnswer = (choice) => {
-    let { quizId, choiceId, articleId, playerId, lastQuestion } = this.state;
+    let { quizId, choiceId, articleId,playerName, playerId, lastQuestion } = this.state;
     let data = {
       player_id: playerId,
       answer_id: choice,
@@ -129,10 +129,12 @@ class Doit extends Component {
     Axios.post(`${API.PLAY}/${quizId}`, data)
       .then((res) => {
         // console.log("\n== Res ==\n", res);
-
+        console.log("\n== choiceId ==\n", choiceId);
+        console.log("\n== choiceId 1 ==\n", choiceId+1);
+        console.log(res.data.result)
         Router.push({
-          pathname: `/quiz/${id}/${choiceId + 1}`,
-          query: { playerName: res.data.result.name, playerId: res.data.result.id },
+          pathname: `/quiz/${quizId}/${choiceId + 1}`,
+          query: { playerName: playerName, playerId: playerId },
         });
       })
       .catch((err) => {
