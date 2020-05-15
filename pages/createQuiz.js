@@ -70,7 +70,7 @@ class CreateQuiz extends Component {
   };
 
   _onSubmit = () => {
-    console.log("Click! Click!! Click!!!");
+    // console.log("Click! Click!! Click!!!");
     this.fetchData();
   };
 
